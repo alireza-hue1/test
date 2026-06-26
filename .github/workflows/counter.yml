@@ -1,0 +1,54 @@
+import asyncio
+import aiohttp
+import base64
+import os
+
+# نام فایل حاوی لینک‌ها
+SUBS_FILE = "alive.txt"
+
+async def fetch_and_count(session, url):
+    try:
+        async with session.get(url, timeout=30) as response:
+            if response.status == 200:
+                text = await response.text()
+                
+                # دیکود کردن بیس۶۴ در صورت نیاز
+                try:
+                    decoded_data = base64.b64decode(text.strip()).decode('utf-8')
+                except Exception:
+                    decoded_data = text
+                
+                configs = [line for line in decoded_data.split('\n') if line.strip()]
+                return len(configs)
+            else:
+                print(f"Error {response.status} for URL: {url}")
+                return 0
+    except Exception as e:
+        print(f"Failed to fetch {url}: {e}")
+        return 0
+
+async def main():
+    # بررسی وجود فایل
+    if not os.path.exists(SUBS_FILE):
+        print(f"Error: {SUBS_FILE} not found!")
+        return
+
+    # خواندن لینک‌ها از فایل txt
+    with open(SUBS_FILE, "r", encoding="utf-8") as f:
+        links = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+
+    print(f"Loaded {len(links)} subscription links. Starting to count...")
+
+    # محدود کردن کانکشن‌های همزمان به ۵۰ تا برای جلوگیری از شلوغی سرورها
+    connector = aiohttp.TCPConnector(limit=50)
+    async with aiohttp.ClientSession(connector=connector) as session:
+        tasks = [fetch_and_count(session, url) for url in links]
+        results = await asyncio.gather(*tasks)
+        
+        total_configs = sum(results)
+        print(f"\n====================================")
+        print(f"Total Configs Found: {total_configs:,}")
+        print(f"====================================")
+
+if __name__ == "__main__":
+    asyncio.run(main())
