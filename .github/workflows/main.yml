@@ -1,11 +1,15 @@
 name: Sub Links Checker
 
 on:
-  workflow_dispatch: # این گزینه بهت اجازه میده به صورت دستی دکمه اجرا رو بزنی
+  workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    
+    # اضافه شدن دسترسی نوشتن به توکن ورک‌فلو
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout Repository
@@ -29,6 +33,5 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add alive.txt dead.txt
-        # اگر تغییری ایجاد شده بود کامیت کن تا خطا نده
         git diff --quiet && git diff --staged --quiet || git commit -m "Update alive and dead sub links"
         git push
