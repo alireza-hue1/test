@@ -6,7 +6,7 @@ import os
 INPUT_FILE = 'urls.txt'
 ALIVE_FILE = 'alive.txt'
 DEAD_FILE = 'dead.txt'
-CONCURRENCY_LIMIT = 200 # تعداد تست همزمان (بیشتر از این ممکنه گیت‌هاب بلاک کنه)
+CONCURRENCY_LIMIT = 200 # تعداد تست همزمان
 TIMEOUT = 10 # مهلت پاسخگویی هر لینک به ثانیه
 
 async def check_url(session, url, semaphore):
@@ -30,7 +30,7 @@ async def check_url(session, url, semaphore):
 
 def print_msg(url, status, emoji):
     # برای اینکه لاگ‌ها خیلی طولانی نشن، فقط اول و آخر لینک رو نشون میدیم
-    short_url = url Hellenic = url[:40] + "..." if len(url) > 40 else url
+    short_url = url[:40] + "..." if len(url) > 40 else url
     return f"{emoji} {status}: {short_url}"
 
 async def main():
@@ -45,7 +45,7 @@ async def main():
 
     semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
     
-    # تنظیمات مرورگر فرضی برای اینکه سرورها رد نکنن درخواست رو
+    # تنظیمات مرورگر فرضی
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
     
     async with aiohttp.ClientSession(headers=headers) as session:
